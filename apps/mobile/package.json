@@ -1,22 +1,55 @@
 {
   "name": "mobile",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "expo-router/entry",
   "dependencies": {
+    "@expo-google-fonts/ibm-plex-sans": "^0.4.1",
+    "@expo-google-fonts/instrument-serif": "^0.4.1",
+    "@react-native-async-storage/async-storage": "2.2.0",
+    "@supabase/supabase-js": "^2.116.0",
+    "babel-preset-expo": "~57.0.0",
     "expo": "~57.0.17",
+    "expo-audio": "~57.0.5",
+    "expo-auth-session": "~57.0.12",
+    "expo-constants": "~57.0.15",
+    "expo-crypto": "~57.0.3",
+    "expo-dev-client": "~57.0.19",
+    "expo-font": "~57.0.1",
+    "expo-linear-gradient": "~57.0.1",
+    "expo-linking": "~57.0.8",
+    "expo-notifications": "~57.0.19",
+    "expo-router": "~57.0.17",
+    "expo-secure-store": "~57.0.4",
     "expo-status-bar": "~57.0.1",
+    "expo-system-ui": "~57.0.3",
+    "expo-updates": "~57.0.24",
+    "expo-web-browser": "~57.0.3",
     "react": "19.2.3",
-    "react-native": "0.86.3"
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-gesture-handler": "~2.32.0",
+    "react-native-reanimated": "4.5.1",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-screens": "~4.26.0",
+    "react-native-svg": "15.15.4",
+    "react-native-url-polyfill": "^4.0.0",
+    "react-native-web": "^0.21.2",
+    "react-native-worklets": "0.10.1"
   },
   "devDependencies": {
     "@types/react": "~19.2.2",
     "typescript": "~6.0.3"
   },
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
-    "web": "expo start --web"
+    "start": "expo start --port 19006",
+    "start:dev-client": "expo start --dev-client --port 19006",
+    "android": "expo start --android --port 19006",
+    "ios": "expo start --ios --port 19006",
+    "web": "expo start --web --port 19006",
+    "eas:build:dev": "eas build --profile development --platform ios",
+    "eas:build:dev:device": "eas build --profile development:device --platform all",
+    "eas:build:preview": "eas build --profile preview --platform all",
+    "eas:build:prod": "eas build --profile production --platform all"
   },
   "private": true
 }
