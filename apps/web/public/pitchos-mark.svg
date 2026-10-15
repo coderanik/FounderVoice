@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Background Gradient -->
+    <radialGradient id="bg-glow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#1e1b4b" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#090d16" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#05070b" stop-opacity="1"/>
+    </radialGradient>
+
+    <!-- Waveform & Stem Gradient -->
+    <linearGradient id="wave-grad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="50%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <!-- Primary Loop Gradient -->
+    <linearGradient id="pitch-arc-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="40%" stop-color="#4f46e5"/>
+      <stop offset="80%" stop-color="#7c3aed"/>
+      <stop offset="100%" stop-color="#a855f7"/>
+    </linearGradient>
+
+    <!-- Trajectory & Vector Gradient -->
+    <linearGradient id="vector-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+
+    <!-- Node Glow Filter -->
+    <filter id="node-glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Ambient Shadow -->
+    <filter id="mark-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="16" stdDeviation="24" flood-color="#4f46e5" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000" flood-opacity="0.5"/>
+    </filter>
+  </defs>
+
+  <!-- Squircle Base Canvas -->
+  <rect width="512" height="512" rx="112" fill="url(#bg-glow)"/>
+  <rect width="510" height="510" x="1" y="1" rx="111" stroke="rgba(255,255,255,0.12)" stroke-width="2" fill="none"/>
+
+  <!-- Subsurface Glow Accent -->
+  <circle cx="280" cy="220" r="140" fill="#6366f1" opacity="0.15" filter="url(#node-glow)"/>
+  <circle cx="160" cy="280" r="90" fill="#06b6d4" opacity="0.12" filter="url(#node-glow)"/>
+
+  <!-- Group: The PitchOS Mark (Voice Stem + Graph Arc + Trajectory Arrow) -->
+  <g filter="url(#mark-shadow)">
+    <!-- 1. Voice Waveform Stem (Left pillar of the 'P') -->
+    <!-- Voice bar 1: subtle intro bar -->
+    <rect x="108" y="228" width="12" height="56" rx="6" fill="url(#wave-grad)" opacity="0.45"/>
+    
+    <!-- Voice bar 2: rising resonance -->
+    <rect x="130" y="188" width="14" height="136" rx="7" fill="url(#wave-grad)" opacity="0.8"/>
+    
+    <!-- Voice bar 3: core spine/stem of the 'P' -->
+    <rect x="154" y="136" width="22" height="240" rx="11" fill="url(#wave-grad)"/>
+
+    <!-- Voice bar 4: interior harmonic resonance -->
+    <rect x="186" y="200" width="14" height="112" rx="7" fill="url(#wave-grad)" opacity="0.75"/>
+
+    <!-- 2. The Connected Claim Graph Loop of 'P' -->
+    <!-- Connection lines with crisp geometric angles and curves -->
+    <path d="M 165 158 C 240 120, 345 140, 360 215 C 375 295, 275 328, 165 300"
+          fill="none"
+          stroke="url(#pitch-arc-grad)"
+          stroke-width="24"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+
+    <!-- Secondary internal neural graph link bridging sound to thesis -->
+    <path d="M 193 256 L 275 228 L 340 270"
+          fill="none"
+          stroke="#38bdf8"
+          stroke-width="4"
+          stroke-dasharray="6 6"
+          opacity="0.6"/>
+
+    <path d="M 275 228 L 310 168"
+          fill="none"
+          stroke="#818cf8"
+          stroke-width="4"
+          opacity="0.5"/>
+
+    <!-- 3. Dynamic Upward Pitch Vector (Ascending Momentum) -->
+    <!-- Arrowhead launching from the apex of the P -->
+    <path d="M 330 148 L 400 122 L 382 192"
+          fill="none"
+          stroke="url(#vector-grad)"
+          stroke-width="20"
+          stroke-linecap="round"
+          stroke-linejoin="round"/>
+    
+    <!-- Trajectory launch beam -->
+    <line x1="290" y1="185" x2="385" y2="135"
+          stroke="#38bdf8"
+          stroke-width="12"
+          stroke-linecap="round"/>
+
+    <!-- 4. Claim Graph Constellation Nodes (Interactive glowing data points) -->
+    <!-- Node A: Stem Anchor (Voice input) -->
+    <circle cx="165" cy="158" r="10" fill="#38bdf8" filter="url(#node-glow)"/>
+    <circle cx="165" cy="158" r="5" fill="#ffffff"/>
+
+    <!-- Node B: Insight Synthesis (Top arc) -->
+    <circle cx="280" cy="144" r="11" fill="#818cf8" filter="url(#node-glow)"/>
+    <circle cx="280" cy="144" r="5.5" fill="#ffffff"/>
+
+    <!-- Node C: Apex / Deal Traction (Pre-launch) -->
+    <circle cx="360" cy="215" r="13" fill="#c084fc" filter="url(#node-glow)"/>
+    <circle cx="360" cy="215" r="6.5" fill="#ffffff"/>
+
+    <!-- Node D: Resolution / Diligence Node (Bottom return) -->
+    <circle cx="295" cy="316" r="10" fill="#6366f1" filter="url(#node-glow)"/>
+    <circle cx="295" cy="316" r="5" fill="#ffffff"/>
+
+    <!-- Node E: Central Knowledge Core (Claim Graph Synthesis) -->
+    <circle cx="275" cy="228" r="14" fill="#06b6d4" filter="url(#node-glow)"/>
+    <circle cx="275" cy="228" r="7" fill="#ffffff"/>
+
+    <!-- Node F: Internal Validation Node -->
+    <circle cx="340" cy="270" r="8" fill="#38bdf8" opacity="0.9"/>
+    <circle cx="340" cy="270" r="4" fill="#ffffff"/>
+  </g>
+</svg>
