@@ -48,7 +48,18 @@ function androidFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Res
   });
 }
 
+function requestUrl(input: RequestInfo | URL): string {
+  if (typeof Request !== "undefined" && input instanceof Request) return input.url;
+  if (input instanceof URL) return input.toString();
+  return String(input);
+}
+
 export function nativeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
-  if (Platform.OS === "android") return androidFetch(input, init);
-  return fetch(input, init);
+  const headers = new Headers(init?.headers);
+  if (requestUrl(input).includes("ngrok")) {
+    headers.set("ngrok-skip-browser-warning", "1");
+  }
+  const next = { ...init, headers };
+  if (Platform.OS === "android") return androidFetch(input, next);
+  return fetch(input, next);
 }
