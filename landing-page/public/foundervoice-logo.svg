@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 740 160" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Voice Soundwave Stem Gradient -->
+    <linearGradient id="l-wave-grad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="45%" stop-color="#2563eb"/>
+      <stop offset="75%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <!-- Upper Branch -->
+    <linearGradient id="l-top-beam" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="50%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#8b5cf6"/>
+    </linearGradient>
+
+    <!-- Mid Branch -->
+    <linearGradient id="l-mid-beam" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="60%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+
+    <!-- Arrow Gradient -->
+    <linearGradient id="l-arrow-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+
+    <!-- Wordmark "Voice" Gradient -->
+    <linearGradient id="voice-text-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="50%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+
+    <!-- Glow Filter -->
+    <filter id="l-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Shadow Filter -->
+    <filter id="l-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#2563eb" flood-opacity="0.22"/>
+    </filter>
+  </defs>
+
+  <!-- EMBLEM CONTAINER (136x136 area) -->
+  <g transform="translate(14, 12)" filter="url(#l-shadow)">
+    <rect width="136" height="136" rx="34" fill="#090d18"/>
+    <rect width="134" height="134" x="1" y="1" rx="33" stroke="rgba(255,255,255,0.14)" stroke-width="1.5" fill="none"/>
+    
+    <!-- Background diffuse halo -->
+    <circle cx="75" cy="62" r="44" fill="#3b82f6" opacity="0.2" filter="url(#l-glow)"/>
+
+    <!-- Scaled Mark elements inside the container -->
+    <g transform="translate(24, 20) scale(0.24)">
+      <!-- Voice bars -->
+      <rect x="50" y="125" width="16" height="75" rx="8" fill="url(#l-wave-grad)" opacity="0.45"/>
+      <rect x="80" y="70" width="18" height="180" rx="9" fill="url(#l-wave-grad)" opacity="0.8"/>
+      <rect x="112" y="5" width="28" height="320" rx="14" fill="url(#l-wave-grad)"/>
+      <rect x="154" y="95" width="18" height="140" rx="9" fill="url(#l-wave-grad)" opacity="0.75"/>
+
+      <!-- Top Arm of 'F' -->
+      <path d="M 125 25 L 340 25" stroke="url(#l-top-beam)" stroke-width="28" stroke-linecap="round"/>
+
+      <!-- Pitch Vector Arrow -->
+      <path d="M 325 80 L 405 0 L 325 -80" fill="none" stroke="url(#l-arrow-grad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+      <line x1="270" y1="0" x2="400" y2="0" stroke="#38bdf8" stroke-width="16" stroke-linecap="round"/>
+
+      <!-- Mid Arm of 'F' -->
+      <path d="M 125 160 L 270 160" stroke="url(#l-mid-beam)" stroke-width="26" stroke-linecap="round"/>
+      <line x1="270" y1="160" x2="350" y2="100" stroke="#818cf8" stroke-width="6" stroke-dasharray="8 8"/>
+      <line x1="270" y1="160" x2="335" y2="230" stroke="#38bdf8" stroke-width="5"/>
+      <line x1="350" y1="100" x2="340" y2="25" stroke="#a78bfa" stroke-width="4" stroke-dasharray="6 6"/>
+
+      <!-- Constellation Nodes -->
+      <circle cx="125" cy="25" r="13" fill="#38bdf8" filter="url(#l-glow)"/>
+      <circle cx="125" cy="25" r="6" fill="#ffffff"/>
+
+      <circle cx="270" cy="25" r="14" fill="#818cf8" filter="url(#l-glow)"/>
+      <circle cx="270" cy="25" r="7" fill="#ffffff"/>
+
+      <circle cx="405" cy="0" r="16" fill="#c084fc" filter="url(#l-glow)"/>
+      <circle cx="405" cy="0" r="8" fill="#ffffff"/>
+
+      <circle cx="270" cy="160" r="15" fill="#06b6d4" filter="url(#l-glow)"/>
+      <circle cx="270" cy="160" r="7.5" fill="#ffffff"/>
+
+      <circle cx="350" cy="100" r="13" fill="#818cf8" filter="url(#l-glow)"/>
+      <circle cx="350" cy="100" r="6.5" fill="#ffffff"/>
+
+      <circle cx="335" cy="230" r="11" fill="#38bdf8" filter="url(#l-glow)"/>
+      <circle cx="335" cy="230" r="5.5" fill="#ffffff"/>
+    </g>
+  </g>
+
+  <!-- WORDMARK / TYPOGRAPHY -->
+  <g transform="translate(182, 0)">
+    <!-- Main Brand Name: founderVoice -->
+    <text x="0" y="88" 
+          font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif" 
+          font-size="62" 
+          font-weight="700" 
+          letter-spacing="-0.04em" 
+          fill="#0f172a">
+      founder<tspan font-weight="800" fill="url(#voice-text-grad)">Voice</tspan>
+    </text>
+
+    <!-- Tagline & Badge Row -->
+    <g transform="translate(2, 106)">
+      <!-- Rule Your Pitch Badge -->
+      <rect x="0" y="0" width="138" height="24" rx="6" fill="#eff6ff" stroke="#dbeafe" stroke-width="1"/>
+      <text x="10" y="16.5" 
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+            font-size="11" 
+            font-weight="700" 
+            letter-spacing="0.04em" 
+            fill="#2563eb">
+        RULE YOUR PITCH!
+      </text>
+
+      <!-- Pipeline Subtitle -->
+      <text x="156" y="17" 
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'SF Mono', monospace" 
+            font-size="12" 
+            font-weight="500" 
+            letter-spacing="0.02em" 
+            fill="#64748b">
+        Voice <tspan fill="#2563eb">→</tspan> Claim Graph <tspan fill="#2563eb">→</tspan> Diligence Pack
+      </text>
+    </g>
+  </g>
+</svg>
