@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 160" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Waveform & Stem Gradient -->
+    <linearGradient id="dark-wave-grad" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="60%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <!-- Primary Loop Gradient -->
+    <linearGradient id="dark-pitch-arc" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="45%" stop-color="#6366f1"/>
+      <stop offset="85%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#c084fc"/>
+    </linearGradient>
+
+    <!-- Arrow Gradient -->
+    <linearGradient id="dark-arrow-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="50%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#e879f9"/>
+    </linearGradient>
+
+    <!-- OS Text Gradient -->
+    <linearGradient id="dark-os-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+
+    <!-- Mark Glow Filter -->
+    <filter id="dark-logo-glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Subtle Mark Shadow -->
+    <filter id="dark-subtle-shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#4f46e5" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <!-- ICON EMBLEM GROUP -->
+  <g transform="translate(16, 12)" filter="url(#dark-subtle-shadow)">
+    <!-- Rounded Emblem Container -->
+    <rect width="136" height="136" rx="34" fill="#0b0f19"/>
+    <rect width="134" height="134" x="1" y="1" rx="33" stroke="rgba(255,255,255,0.16)" stroke-width="1.5" fill="none"/>
+    
+    <!-- Background diffuse glow -->
+    <circle cx="75" cy="60" r="44" fill="#6366f1" opacity="0.25" filter="url(#dark-logo-glow)"/>
+
+    <!-- Scaled Mark elements inside the container -->
+    <g transform="translate(26, 22) scale(0.24)">
+      <!-- Voice bars -->
+      <rect x="50" y="125" width="16" height="75" rx="8" fill="url(#dark-wave-grad)" opacity="0.45"/>
+      <rect x="80" y="70" width="18" height="180" rx="9" fill="url(#dark-wave-grad)" opacity="0.8"/>
+      <rect x="112" y="5" width="28" height="320" rx="14" fill="url(#dark-wave-grad)"/>
+      <rect x="154" y="90" width="18" height="150" rx="9" fill="url(#dark-wave-grad)" opacity="0.75"/>
+
+      <!-- Graph Arc of 'P' -->
+      <path d="M 125 35 C 220 -15, 360 10, 380 110 C 400 215, 270 260, 125 220"
+            fill="none"
+            stroke="url(#dark-pitch-arc)"
+            stroke-width="32"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+
+      <!-- Trajectory Vector Arrow -->
+      <path d="M 335 25 L 435 -10 L 410 85"
+            fill="none"
+            stroke="url(#dark-arrow-grad)"
+            stroke-width="26"
+            stroke-linecap="round"
+            stroke-linejoin="round"/>
+
+      <line x1="285" y1="75" x2="415" y2="10"
+            stroke="#38bdf8"
+            stroke-width="16"
+            stroke-linecap="round"/>
+
+      <!-- Constellation Nodes -->
+      <circle cx="125" cy="35" r="14" fill="#38bdf8" filter="url(#dark-logo-glow)"/>
+      <circle cx="125" cy="35" r="7" fill="#ffffff"/>
+
+      <circle cx="270" cy="18" r="14" fill="#818cf8" filter="url(#dark-logo-glow)"/>
+      <circle cx="270" cy="18" r="7" fill="#ffffff"/>
+
+      <circle cx="380" cy="110" r="16" fill="#c084fc" filter="url(#dark-logo-glow)"/>
+      <circle cx="380" cy="110" r="8" fill="#ffffff"/>
+
+      <circle cx="265" cy="130" r="18" fill="#06b6d4" filter="url(#dark-logo-glow)"/>
+      <circle cx="265" cy="130" r="9" fill="#ffffff"/>
+
+      <circle cx="295" cy="245" r="14" fill="#6366f1" filter="url(#dark-logo-glow)"/>
+      <circle cx="295" cy="245" r="7" fill="#ffffff"/>
+    </g>
+  </g>
+
+  <!-- TYPOGRAPHY / WORDMARK GROUP -->
+  <g transform="translate(180, 0)">
+    <!-- Brand Title: PitchOS for Dark Backgrounds -->
+    <text x="0" y="88" 
+          font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif" 
+          font-size="64" 
+          font-weight="800" 
+          letter-spacing="-0.04em" 
+          fill="#f8fafc">
+      Pitch<tspan fill="url(#dark-os-grad)">OS</tspan>
+    </text>
+
+    <!-- Subtitle Badge: Dark Theme -->
+    <g transform="translate(2, 106)">
+      <!-- Badge Pill -->
+      <rect x="0" y="0" width="220" height="24" rx="6" fill="#1e293b" stroke="#334155" stroke-width="1"/>
+      <text x="12" y="16.5" 
+            font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'SF Mono', monospace" 
+            font-size="11" 
+            font-weight="700" 
+            letter-spacing="0.1em" 
+            text-transform="uppercase" 
+            fill="#38bdf8">
+        VOICE → CLAIM GRAPH
+      </text>
+    </g>
+
+    <text x="238" y="122.5" 
+          font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+          font-size="13" 
+          font-weight="500" 
+          letter-spacing="-0.01em" 
+          fill="#94a3b8">
+      Rule your pitch
+    </text>
+  </g>
+</svg>
