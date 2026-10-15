@@ -36,7 +36,13 @@ function formatElapsed(ms: number): string {
   const total = Math.max(0, Math.floor(ms / 1000));
   const minutes = Math.floor(total / 60);
   const seconds = total % 60;
-  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
+
+const WAVE_BARS = 36;
+
+function seedWave(): number[] {
+  return Array.from({ length: WAVE_BARS }, (_, i) => 0.18 + Math.abs(Math.sin(i * 0.55)) * 0.35);
 }
 
 function MicIcon() {
@@ -59,9 +65,13 @@ export default function CaptureScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
-  const recorderState = useAudioRecorderState(recorder, 200);
+  const recorder = useAudioRecorder({
+    ...RecordingPresets.HIGH_QUALITY,
+    isMeteringEnabled: true,
+  });
+  const recorderState = useAudioRecorderState(recorder, 120);
   const [phase, setPhase] = useState<Phase>("idle");
+  const [wave, setWave] = useState<number[]>(seedWave);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [error, setError] = useState("");
@@ -95,6 +105,16 @@ export default function CaptureScreen() {
 
   const elapsed =
     phase === "recording" || phase === "paused" ? recorderState.durationMillis : 0;
+
+  useEffect(() => {
+    if (phase !== "recording") return;
+    const db = recorderState.metering;
+    const level =
+      typeof db === "number"
+        ? Math.max(0.08, Math.min(1, (db + 55) / 55))
+        : 0.22 + Math.abs(Math.sin(elapsed / 140)) * 0.55;
+    setWave((prev) => [...prev.slice(1), level]);
+  }, [phase, recorderState.metering, elapsed]);
   const canPause = phase === "recording" || phase === "paused";
   const canStop = phase === "recording" || phase === "paused";
 
@@ -154,7 +174,7 @@ export default function CaptureScreen() {
         },
         "auto"
       );
-      router.replace(`/projects/${id}`);
+      router.replace(`/projects/${id}/review`);
     } catch (e) {
       setPhase("idle");
       const message = e instanceof Error ? e.message : "Could not process the recording.";
@@ -206,36 +226,83 @@ export default function CaptureScreen() {
         </View>
 
         <View style={styles.body}>
-          <Text style={styles.title}>Tell us about your startup</Text>
-          <Text style={styles.subtitle}>
-            Just speak naturally. Don’t worry about structure — we’ll take care of the rest.
-          </Text>
+          {phase === "idle" ? (
+            <>
+              <Text style={styles.title}>Tell us about your startup</Text>
+              <Text style={styles.subtitle}>
+                Just speak naturally. Don’t worry about structure — we’ll take care of the rest.
+              </Text>
 
-          <Pressable
-            onPress={onMicPress}
-            disabled={phase === "recording" || phase === "processing"}
-            accessibilityRole="button"
-            accessibilityLabel={phase === "idle" ? "Start recording" : "Resume recording"}
-            style={styles.micHit}
-          >
-            <Animated.View style={[styles.micRing, { transform: [{ scale: pulse }] }]}>
-              <View style={[styles.micCore, phase === "recording" && styles.micCoreLive]}>
-                {phase === "processing" ? (
-                  <ActivityIndicator color="#6d4aff" />
-                ) : (
-                  <MicIcon />
-                )}
+              <Pressable
+                onPress={onMicPress}
+                accessibilityRole="button"
+                accessibilityLabel="Start recording"
+                style={styles.micHit}
+              >
+                <View style={styles.micRing}>
+                  <View style={styles.micCore}>
+                    <MicIcon />
+                  </View>
+                </View>
+              </Pressable>
+              <Text style={styles.hint}>{hint}</Text>
+
+              <View style={styles.tips}>
+                <Text style={styles.tipsTitle}>Tips:</Text>
+                <Text style={styles.tip}>•  Speak freely (2–5 minutes)</Text>
+                <Text style={styles.tip}>•  Cover problem, solution, target market, traction, etc.</Text>
+                <Text style={styles.tip}>•  You can pause and resume anytime</Text>
               </View>
-            </Animated.View>
-          </Pressable>
-          <Text style={styles.hint}>{hint}</Text>
+            </>
+          ) : (
+            <View style={styles.live}>
+              <Text style={styles.liveTitle}>
+                {phase === "paused" ? "Paused" : phase === "processing" ? "Processing…" : "Recording..."}
+              </Text>
+              <Text style={styles.liveSubtitle}>
+                {phase === "paused"
+                  ? "Tap resume when you want to continue."
+                  : phase === "processing"
+                    ? "Turning your pitch into a claim graph."
+                    : "Keep speaking. You can stop anytime."}
+              </Text>
 
-          <View style={styles.tips}>
-            <Text style={styles.tipsTitle}>Tips:</Text>
-            <Text style={styles.tip}>•  Speak freely (2–5 minutes)</Text>
-            <Text style={styles.tip}>•  Cover problem, solution, target market, traction, etc.</Text>
-            <Text style={styles.tip}>•  You can pause and resume anytime</Text>
-          </View>
+              <Pressable
+                onPress={() => void stopAndProcess()}
+                disabled={phase === "processing"}
+                accessibilityRole="button"
+                accessibilityLabel="Stop and process"
+                style={styles.stopHit}
+              >
+                <Animated.View style={[styles.stopHalo, { transform: [{ scale: pulse }] }]}>
+                  <View style={styles.stopCore}>
+                    {phase === "processing" ? (
+                      <ActivityIndicator color="#ef4444" />
+                    ) : (
+                      <View style={styles.stopMark} />
+                    )}
+                  </View>
+                </Animated.View>
+              </Pressable>
+
+              <Text style={styles.clock}>{formatElapsed(elapsed)}</Text>
+
+              <View style={styles.wave} accessibilityLabel="Recording level">
+                {wave.map((level, index) => (
+                  <View
+                    key={index}
+                    style={[
+                      styles.waveBar,
+                      {
+                        height: 8 + level * 40,
+                        opacity: phase === "recording" ? 0.45 + level * 0.55 : 0.35,
+                      },
+                    ]}
+                  />
+                ))}
+              </View>
+            </View>
+          )}
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -263,6 +330,7 @@ export default function CaptureScreen() {
               style={[styles.stop, !canStop && styles.stopDisabled]}
             >
               <View style={styles.stopSquare} />
+              {phase === "idle" ? <View style={styles.stopSquare} /> : null}
               <Text style={styles.stopLabel}>
                 {phase === "processing" ? "Processing…" : "Stop & Process"}
               </Text>
@@ -387,8 +455,71 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 6 },
     elevation: 3,
   },
-  micCoreLive: {
-    backgroundColor: "#f7f4ff",
+  live: {
+    flex: 1,
+    alignItems: "center",
+    paddingTop: 28,
+  },
+  liveTitle: {
+    fontFamily: "IBMPlexSans_700Bold",
+    fontSize: 28,
+    color: "#1a1b23",
+    letterSpacing: -0.4,
+    textAlign: "center",
+  },
+  liveSubtitle: {
+    marginTop: 8,
+    fontFamily: "IBMPlexSans_400Regular",
+    fontSize: 15,
+    lineHeight: 22,
+    color: "#8b909c",
+    textAlign: "center",
+  },
+  stopHit: {
+    marginTop: 36,
+  },
+  stopHalo: {
+    width: 168,
+    height: 168,
+    borderRadius: 84,
+    backgroundColor: "#fde8e8",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stopCore: {
+    width: 112,
+    height: 112,
+    borderRadius: 56,
+    backgroundColor: "#fff5f5",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  stopMark: {
+    width: 28,
+    height: 28,
+    borderRadius: 6,
+    backgroundColor: "#ef4444",
+  },
+  clock: {
+    marginTop: 28,
+    fontFamily: "IBMPlexSans_700Bold",
+    fontSize: 28,
+    color: "#1a1b23",
+    letterSpacing: 0.5,
+  },
+  wave: {
+    marginTop: 22,
+    height: 56,
+    alignSelf: "stretch",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 3,
+  },
+  waveBar: {
+    width: 3,
+    borderRadius: 2,
+    backgroundColor: "#6d4aff",
   },
   hint: {
     marginTop: 16,
