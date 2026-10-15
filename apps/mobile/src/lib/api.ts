@@ -128,4 +128,11 @@ export const api = {
       summary: string;
     }>;
   },
+  updateClaim: (projectId: string, claimId: string, body: Partial<Claim>) =>
+    request<Claim>(`/projects/${projectId}/claims/${claimId}`, {
+      method: "PATCH",
+      body: JSON.stringify(body),
+    }),
+  memoAudioUrl: (projectId: string, memoId: string) =>
+    `${API_BASE}/projects/${projectId}/memos/${memoId}/audio`,
 };
