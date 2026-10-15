@@ -1,0 +1,11 @@
+{
+  "name": "foundervoice",
+  "version": "1.0.0",
+  "description": "Voice → Claim Graph → investor critic → PPTX + XLSX diligence pack.",
+  "main": "index.js",
+  "scripts": {
+    "landingpage": "bash scripts/dev-landing.sh"
+  },
+  "author": "",
+  "license": "MIT"
+}
