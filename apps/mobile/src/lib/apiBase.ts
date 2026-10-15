@@ -31,19 +31,27 @@ function resolveApiBase(): string {
   // A public or https production URL stays as configured.
   if (!configuredHost || !isDevHost(configuredHost)) return raw;
 
+  const url = new URL(raw);
+  // Older builds called the emulator alias on port 8000. The API listens on 8010.
+  url.port = "8010";
+
   // A phone already reached this computer for Metro. Use that host so a stale
-  // LAN IP in .env (the machine's address changes) does not leave the app disconnected.
+  // LAN IP, or 10.0.2.2, does not leave the app disconnected.
   const host = devMachineHost();
   if (host) {
-    return raw.replace(`://${configuredHost}`, `://${host}`);
+    url.hostname = host;
+    return url.toString().replace(/\/$/, "");
   }
 
   // Android emulator cannot reach the host via 127.0.0.1.
-  if (Platform.OS === "android" && (configuredHost === "localhost" || configuredHost === "127.0.0.1")) {
-    return raw.replace(`://${configuredHost}`, "://10.0.2.2");
+  if (
+    Platform.OS === "android" &&
+    (configuredHost === "localhost" || configuredHost === "127.0.0.1")
+  ) {
+    url.hostname = "10.0.2.2";
   }
 
-  return raw;
+  return url.toString().replace(/\/$/, "");
 }
 
 export const API_BASE = resolveApiBase();
