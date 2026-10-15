@@ -81,6 +81,11 @@ export default function ProjectDetailScreen() {
         >
           <Text style={styles.recordText}>Record your pitch</Text>
         </Pressable>
+        {project.memos.length ? (
+          <Pressable onPress={() => router.push(`/projects/${id}/review`)} style={styles.review}>
+            <Text style={styles.reviewText}>Review transcript</Text>
+          </Pressable>
+        ) : null}
       </ScrollView>
     </Screen>
   );
@@ -159,6 +164,20 @@ const styles = StyleSheet.create({
     fontFamily: fonts.sansSemi,
     fontSize: 15,
     color: "#ffffff",
+  },
+  review: {
+    borderRadius: 14,
+    height: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.line,
+  },
+  reviewText: {
+    fontFamily: fonts.sansSemi,
+    fontSize: 15,
+    color: colors.ink,
   },
   error: {
     fontFamily: fonts.sans,
