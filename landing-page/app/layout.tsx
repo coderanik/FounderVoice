@@ -3,8 +3,8 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'FounderVoice — Fundraising readiness infrastructure',
-  description: 'Turn rambling founder thinking into an investor-ready truth with a verified Claim Graph, deck, model, and FAQ.',
+  title: 'FounderVoice — A deck you can defend',
+  description: 'Talk through the company. FounderVoice turns it into a deck, a model, and an FAQ that agree, and never invents a number.',
   generator: 'FounderVoice',
 }
 
