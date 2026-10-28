@@ -20,7 +20,10 @@ class Settings(BaseSettings):
     openai_base_url: str = "https://api.openai.com/v1"
     openai_model: str = "gpt-4o-mini"
     whisper_model: str = "whisper-1"
-    # local | openai | auto — local is default (faster-whisper, no API key)
+    elevenlabs_api_key: str = ""
+    elevenlabs_stt_model: str = "scribe_v2"
+    elevenlabs_base_url: str = "https://api.elevenlabs.io"
+    # local | elevenlabs | openai | auto — local is default offline
     stt_backend: str = "local"
     local_whisper_model: str = "base"
     local_whisper_device: str = "auto"  # auto | cpu | cuda

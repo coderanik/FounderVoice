@@ -65,6 +65,7 @@ def run_ingest_and_extract(
     extract_lang = "en"
     status = {
         "whisper": "transcribed",
+        "elevenlabs": "transcribed",
         "local_whisper": "transcribed",
         "text_file": "transcribed",
         "demo_fallback": "demo_fallback",
@@ -187,7 +188,8 @@ def run_ingest_and_extract(
     return IngestResult(
         memo=memo,
         used_llm=used_llm,
-        used_stt=bool(stt.transcript) and stt.source in {"local_whisper", "whisper"},
+        used_stt=bool(stt.transcript)
+        and stt.source in {"local_whisper", "whisper", "elevenlabs"},
         stt_source=stt.source,
         cleaned=stt.cleaned,
         translated=stt.translated,

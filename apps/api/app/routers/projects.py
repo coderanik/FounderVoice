@@ -39,7 +39,7 @@ def _get_project(db: Session, project_id: str) -> Project:
 _STT_WARNINGS = {
     "unavailable": (
         "Audio was saved, but transcription is unavailable on the hosted API. "
-        "Set OPENAI_API_KEY on the API service, or paste a transcript and re-extract."
+        "Set ELEVENLABS_API_KEY (or OPENAI_API_KEY), or paste a transcript and re-extract."
     ),
 }
 

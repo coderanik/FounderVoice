@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import mimetypes
 import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
 
+import httpx
 from openai import OpenAI
 
 from app.config import Settings
@@ -13,6 +15,20 @@ from app.services.audio_clean import denoise_to_wav
 
 def _running_on_render() -> bool:
     return bool(os.environ.get("RENDER") or os.environ.get("RENDER_SERVICE_ID"))
+
+
+_ELEVEN_LANG = {
+    "eng": "en",
+    "en": "en",
+    "hin": "hi",
+    "hi": "hi",
+    "spa": "es",
+    "es": "es",
+    "tam": "ta",
+    "ta": "ta",
+    "tel": "te",
+    "te": "te",
+}
 
 
 @dataclass
@@ -61,9 +77,15 @@ def transcribe_audio(path: Path, language: str, settings: Settings) -> STTResult
         work_path, cleaned = denoise_to_wav(path, prop_decrease=settings.audio_denoise_strength)
 
     backend = (settings.stt_backend or "local").lower()
+    try_eleven = backend in {"elevenlabs", "auto"} and bool(settings.elevenlabs_api_key)
     try_openai = backend in {"openai", "auto"} and bool(settings.openai_api_key)
     # Never load faster-whisper in the cloud free tier — it restarts the dyno mid-upload.
     try_local = backend in {"local", "auto"} and not on_render
+
+    if try_eleven:
+        eleven_result = _transcribe_elevenlabs(work_path, language, settings, cleaned=cleaned)
+        if eleven_result is not None:
+            return eleven_result
 
     if try_openai:
         openai_result = _transcribe_openai(work_path, language, settings, cleaned=cleaned)
@@ -79,8 +101,8 @@ def transcribe_audio(path: Path, language: str, settings: Settings) -> STTResult
         if local is not None:
             return _from_local(local, cleaned)
 
-    if on_render and not settings.openai_api_key:
-        print("[stt] Render has no OPENAI_API_KEY; skipping local Whisper to avoid OOM/502")
+    if on_render and not (settings.elevenlabs_api_key or settings.openai_api_key):
+        print("[stt] Render has no cloud STT key; skipping local Whisper to avoid OOM/502")
 
     return STTResult(
         transcript="",
@@ -103,6 +125,83 @@ def _from_local(local, cleaned: bool) -> STTResult:
         cleaned=cleaned,
         translated=local.translated,
     )
+
+
+def _normalize_eleven_lang(code: str | None, fallback: str) -> str:
+    if not code:
+        return fallback
+    raw = code.strip().lower()
+    if raw in _ELEVEN_LANG:
+        return _ELEVEN_LANG[raw]
+    if len(raw) >= 2 and raw[:2] in _ELEVEN_LANG:
+        return _ELEVEN_LANG[raw[:2]]
+    return fallback
+
+
+def _transcribe_elevenlabs(
+    path: Path,
+    language: str,
+    settings: Settings,
+    *,
+    cleaned: bool,
+) -> STTResult | None:
+    """ElevenLabs Scribe — free-tier friendly cloud STT (OpenAI not required)."""
+    try:
+        forced = None if not language or language == "auto" else language
+        # Scribe accepts ISO-639-1/3; map our short codes.
+        lang_param = None
+        if forced:
+            lang_param = {"en": "eng", "hi": "hin", "es": "spa", "ta": "tam", "te": "tel"}.get(
+                forced, forced
+            )
+
+        mime = mimetypes.guess_type(path.name)[0] or "application/octet-stream"
+        data = {
+            "model_id": settings.elevenlabs_stt_model or "scribe_v2",
+            "tag_audio_events": "false",
+        }
+        if lang_param:
+            data["language_code"] = lang_param
+
+        base = (settings.elevenlabs_base_url or "https://api.elevenlabs.io").rstrip("/")
+        with path.open("rb") as f:
+            files = {"file": (path.name, f, mime)}
+            resp = httpx.post(
+                f"{base}/v1/speech-to-text",
+                headers={"xi-api-key": settings.elevenlabs_api_key},
+                data=data,
+                files=files,
+                timeout=120.0,
+            )
+        if resp.status_code >= 400:
+            print(f"[stt] ElevenLabs STT HTTP {resp.status_code}: {resp.text[:300]}")
+            return None
+
+        payload = resp.json()
+        text = (payload.get("text") or "").strip()
+        # Drop pure audio-event tags like "[phone beep]" when nothing else was said.
+        if text.startswith("[") and text.endswith("]") and " " not in text.strip("[]"):
+            text = ""
+        detected = _normalize_eleven_lang(
+            payload.get("language_code"),
+            forced or detect_language_hint(text) or "en",
+        )
+        english, translated = text, False
+        if text and detected != "en":
+            english, translated = _ensure_english_text(text, detected, settings)
+
+        return STTResult(
+            transcript=english,
+            original_transcript=text,
+            detected_language=detected,
+            used_api=True,
+            source="elevenlabs",
+            cleaned=cleaned,
+            translated=translated,
+        )
+    except Exception as exc:
+        print(f"[stt] ElevenLabs STT failed for {path.name}: {type(exc).__name__}: {exc}")
+        return None
 
 
 def _transcribe_openai(

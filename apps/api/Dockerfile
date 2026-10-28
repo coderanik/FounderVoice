@@ -13,8 +13,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
 ENV PYTHONUNBUFFERED=1 \
-    STT_BACKEND=openai \
+    STT_BACKEND=elevenlabs \
     AUDIO_DENOISE=false \
+    ELEVENLABS_STT_MODEL=scribe_v2 \
     LOCAL_WHISPER_MODEL=base \
     LOCAL_WHISPER_DEVICE=cpu \
     PORT=8010
