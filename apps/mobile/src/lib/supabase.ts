@@ -25,6 +25,7 @@ export function getSupabase(): SupabaseClient {
         persistSession: true,
         detectSessionInUrl: false,
       },
+      // Android OkHttp resets against Supabase; nativeFetch uses XHR first.
       global: Platform.OS === "android" ? { fetch: nativeFetch } : undefined,
     });
   }

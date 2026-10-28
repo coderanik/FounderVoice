@@ -264,13 +264,22 @@ export async function signInWithEmail(input: SignInInput): Promise<UserProfile> 
   await setStaySignedIn(true);
 
   const supabase = getSupabase();
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password: input.password,
-  });
-
-  if (error) throw new Error(error.message);
-  if (!data.user) throw new Error("Sign in failed. Try again.");
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password: input.password,
+    });
+    if (error) throw new Error(error.message);
+    if (!data.user) throw new Error("Sign in failed. Try again.");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes("Network request failed") || message.includes("Failed to fetch")) {
+      throw new Error(
+        "Cannot reach sign-in from this phone. Check Wi‑Fi/mobile data, disable VPN, force-quit the app, open it once, force-quit again, then retry.",
+      );
+    }
+    throw error instanceof Error ? error : new Error(message);
+  }
 
   const profile = await getCurrentProfile();
   if (!profile) throw new Error("Profile not found. Contact support.");
@@ -339,6 +348,24 @@ export async function acceptTermsAndCompleteProfile(input: {
     orgName: input.orgName.trim(),
     email: current.email,
     termsAccepted: true,
+    authProvider: current.authProvider,
+  });
+}
+
+export async function updateProfile(input: {
+  displayName: string;
+  orgName: string;
+}): Promise<UserProfile> {
+  const current = await getCurrentProfile();
+  if (!current) throw new Error("You must be signed in.");
+  if (!input.displayName.trim()) throw new Error("Name is required.");
+
+  return upsertProfile(current.id, {
+    role: current.role,
+    displayName: input.displayName.trim(),
+    orgName: input.orgName.trim(),
+    email: current.email,
+    termsAccepted: current.termsAccepted,
     authProvider: current.authProvider,
   });
 }

@@ -1,11 +1,11 @@
 import { Platform } from "react-native";
 
 /**
- * Android's built-in fetch resets the socket on some hosts
- * (`java.net.SocketException: Connection reset`). XMLHttpRequest uses the
- * other native stack and completes the same request.
+ * Android OkHttp fetch often dies with
+ * `java.net.SocketException: Connection reset` (Supabase, tunnels, LAN).
+ * XMLHttpRequest uses a different stack and usually works.
  */
-function androidFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+function androidXhrFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   return new Promise((resolve, reject) => {
     try {
       const request = typeof Request !== "undefined" && input instanceof Request ? input : null;
@@ -14,10 +14,17 @@ function androidFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Res
       const xhr = new XMLHttpRequest();
       xhr.open(method, url);
       xhr.responseType = "text";
+      xhr.timeout = 60000;
 
       const headers = new Headers(request?.headers);
       if (init?.headers) new Headers(init.headers).forEach((value, key) => headers.set(key, value));
-      headers.forEach((value, key) => xhr.setRequestHeader(key, value));
+      headers.forEach((value, key) => {
+        const lower = key.toLowerCase();
+        if (["host", "content-length", "connection", "user-agent", "accept-encoding"].includes(lower)) {
+          return;
+        }
+        xhr.setRequestHeader(key, value);
+      });
 
       xhr.onload = () => {
         const responseHeaders = new Headers();
@@ -26,7 +33,9 @@ function androidFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Res
           .split(/[\r\n]+/)
           .forEach((line) => {
             const index = line.indexOf(":");
-            if (index > 0) responseHeaders.append(line.slice(0, index).trim(), line.slice(index + 1).trim());
+            if (index > 0) {
+              responseHeaders.append(line.slice(0, index).trim(), line.slice(index + 1).trim());
+            }
           });
         resolve(
           new Response(xhr.responseText, {
@@ -40,8 +49,17 @@ function androidFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Res
       xhr.ontimeout = () => reject(new TypeError("Network request timed out"));
 
       const body = init?.body ?? null;
-      if (typeof body === "string" || body == null) xhr.send(body);
-      else xhr.send(body as XMLHttpRequestBodyInit);
+      if (typeof body === "string" || body == null) {
+        xhr.send(body);
+      } else if (typeof Blob !== "undefined" && body instanceof Blob) {
+        xhr.send(body);
+      } else if (typeof ArrayBuffer !== "undefined" && body instanceof ArrayBuffer) {
+        xhr.send(body);
+      } else if (typeof FormData !== "undefined" && body instanceof FormData) {
+        xhr.send(body);
+      } else {
+        xhr.send(String(body));
+      }
     } catch (error) {
       reject(error);
     }
@@ -54,12 +72,26 @@ function requestUrl(input: RequestInfo | URL): string {
   return String(input);
 }
 
-export function nativeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+export async function nativeFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   const headers = new Headers(init?.headers);
-  if (requestUrl(input).includes("ngrok")) {
+  const url = requestUrl(input);
+  if (url.includes("ngrok")) {
     headers.set("ngrok-skip-browser-warning", "1");
   }
   const next = { ...init, headers };
-  if (Platform.OS === "android") return androidFetch(input, next);
-  return fetch(input, next);
+
+  if (Platform.OS !== "android") {
+    return fetch(input, next);
+  }
+
+  // Prefer XHR on Android — avoids Connection reset from OkHttp.
+  try {
+    return await androidXhrFetch(input, next);
+  } catch (xhrError) {
+    try {
+      return await fetch(input, next);
+    } catch {
+      throw xhrError;
+    }
+  }
 }

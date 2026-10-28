@@ -13,7 +13,7 @@
     "updates": {
       "url": "https://u.expo.dev/f1dea53f-665e-4d4b-8642-202cdc8e0c0b",
       "checkAutomatically": "ON_LOAD",
-      "fallbackToCacheTimeout": 0,
+      "fallbackToCacheTimeout": 8000,
       "requestHeaders": {
         "expo-channel-name": "preview"
       }

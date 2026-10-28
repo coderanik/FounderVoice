@@ -29,6 +29,16 @@ def denoise_to_wav(path: Path, *, prop_decrease: float = 0.75) -> tuple[Path, bo
             stationary=False,
             prop_decrease=float(prop_decrease),
         )
+        original_rms = float(np.sqrt(np.mean(np.square(audio)))) or 1.0
+        reduced_rms = float(np.sqrt(np.mean(np.square(reduced))))
+        # Short phone clips get their speech treated as noise. Keep the original.
+        if reduced_rms < original_rms * 0.55:
+            print(
+                f"[audio] denoise dropped the level on {path.name} "
+                f"({reduced_rms:.4f} vs {original_rms:.4f}); using the original"
+            )
+            return path, False
+
         # Soft peak normalize so Whisper gets healthy levels
         peak = float(np.max(np.abs(reduced))) or 1.0
         if peak > 0:

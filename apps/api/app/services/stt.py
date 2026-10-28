@@ -8,7 +8,6 @@ from openai import OpenAI
 
 from app.config import Settings
 from app.services.audio_clean import denoise_to_wav
-from app.services.local_whisper import LocalSTTResult, transcribe_local
 
 
 @dataclass
@@ -59,7 +58,11 @@ def transcribe_audio(path: Path, language: str, settings: Settings) -> STTResult
     try_openai = backend in {"openai", "auto"} and bool(settings.openai_api_key)
 
     if try_local:
-        local = transcribe_local(work_path, language, settings)
+        try:
+            from app.services.local_whisper import transcribe_local
+        except ImportError:
+            transcribe_local = None  # type: ignore[assignment]
+        local = transcribe_local(work_path, language, settings) if transcribe_local else None
         if local is not None:
             return _from_local(local, cleaned)
 
@@ -79,7 +82,7 @@ def transcribe_audio(path: Path, language: str, settings: Settings) -> STTResult
     )
 
 
-def _from_local(local: LocalSTTResult, cleaned: bool) -> STTResult:
+def _from_local(local, cleaned: bool) -> STTResult:
     return STTResult(
         transcript=local.english_text or local.text,
         original_transcript=local.text,

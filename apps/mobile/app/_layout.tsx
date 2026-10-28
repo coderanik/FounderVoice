@@ -1,7 +1,9 @@
 import "react-native-gesture-handler";
+import { useEffect, useState } from "react";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useFonts } from "expo-font";
+import * as Updates from "expo-updates";
 import {
   IBMPlexSans_400Regular,
   IBMPlexSans_500Medium,
@@ -20,8 +22,34 @@ export default function RootLayout() {
     IBMPlexSans_700Bold,
     InstrumentSerif_400Regular,
   });
+  const [updateReady, setUpdateReady] = useState(!Updates.isEnabled);
 
-  if (!fontsLoaded) {
+  useEffect(() => {
+    let cancelled = false;
+    async function applyUpdate() {
+      if (!Updates.isEnabled) {
+        setUpdateReady(true);
+        return;
+      }
+      try {
+        const result = await Updates.checkForUpdateAsync();
+        if (result.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+          return;
+        }
+      } catch {
+        // Stay on the current bundle if the update check fails offline.
+      }
+      if (!cancelled) setUpdateReady(true);
+    }
+    void applyUpdate();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (!fontsLoaded || !updateReady) {
     return (
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center", backgroundColor: colors.canvas }}>
         <ActivityIndicator color={colors.accent} />
