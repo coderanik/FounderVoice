@@ -13,7 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
 ENV PYTHONUNBUFFERED=1 \
-    STT_BACKEND=local \
+    STT_BACKEND=openai \
+    AUDIO_DENOISE=false \
     LOCAL_WHISPER_MODEL=base \
     LOCAL_WHISPER_DEVICE=cpu \
     PORT=8010

@@ -10,6 +10,8 @@ services:
     envVars:
       - key: STT_BACKEND
         value: openai
+      - key: AUDIO_DENOISE
+        value: "false"
       - key: OPENAI_MODEL
         value: gpt-4o-mini
       - key: WHISPER_MODEL

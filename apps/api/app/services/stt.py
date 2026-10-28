@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from dataclasses import dataclass
 from pathlib import Path
@@ -8,6 +9,10 @@ from openai import OpenAI
 
 from app.config import Settings
 from app.services.audio_clean import denoise_to_wav
+
+
+def _running_on_render() -> bool:
+    return bool(os.environ.get("RENDER") or os.environ.get("RENDER_SERVICE_ID"))
 
 
 @dataclass
@@ -50,12 +55,20 @@ def transcribe_audio(path: Path, language: str, settings: Settings) -> STTResult
 
     work_path = path
     cleaned = False
-    if settings.audio_denoise:
+    # Denoise + local Whisper OOM/kill free-tier hosts (Render 502 HTML). Skip on Render.
+    on_render = _running_on_render()
+    if settings.audio_denoise and not on_render:
         work_path, cleaned = denoise_to_wav(path, prop_decrease=settings.audio_denoise_strength)
 
     backend = (settings.stt_backend or "local").lower()
-    try_local = backend in {"local", "auto"}
     try_openai = backend in {"openai", "auto"} and bool(settings.openai_api_key)
+    # Never load faster-whisper in the cloud free tier — it restarts the dyno mid-upload.
+    try_local = backend in {"local", "auto"} and not on_render
+
+    if try_openai:
+        openai_result = _transcribe_openai(work_path, language, settings, cleaned=cleaned)
+        if openai_result is not None:
+            return openai_result
 
     if try_local:
         try:
@@ -66,10 +79,8 @@ def transcribe_audio(path: Path, language: str, settings: Settings) -> STTResult
         if local is not None:
             return _from_local(local, cleaned)
 
-    if try_openai:
-        openai_result = _transcribe_openai(work_path, language, settings, cleaned=cleaned)
-        if openai_result is not None:
-            return openai_result
+    if on_render and not settings.openai_api_key:
+        print("[stt] Render has no OPENAI_API_KEY; skipping local Whisper to avoid OOM/502")
 
     return STTResult(
         transcript="",

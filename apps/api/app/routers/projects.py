@@ -38,8 +38,8 @@ def _get_project(db: Session, project_id: str) -> Project:
 
 _STT_WARNINGS = {
     "unavailable": (
-        "Audio was saved, but transcription failed. "
-        "Check that faster-whisper + noisereduce are installed, or paste a transcript."
+        "Audio was saved, but transcription is unavailable on the hosted API. "
+        "Set OPENAI_API_KEY on the API service, or paste a transcript and re-extract."
     ),
 }
 
@@ -137,14 +137,25 @@ async def upload_memo(
     if not data:
         raise HTTPException(400, "Empty file")
     path = pipe.save_upload(data, file.filename or "memo.bin")
-    result = pipe.run_ingest_and_extract(
-        db,
-        project,
-        stored_path=path,
-        filename=file.filename or "memo.bin",
-        content_type=file.content_type or "",
-        language=language,
-    )
+    try:
+        result = pipe.run_ingest_and_extract(
+            db,
+            project,
+            stored_path=path,
+            filename=file.filename or "memo.bin",
+            content_type=file.content_type or "",
+            language=language,
+        )
+    except Exception as exc:
+        # Never let an uncaught STT/OOM crash become Render's HTML 502 page.
+        print(f"[upload] ingest failed for {path.name}: {type(exc).__name__}: {exc}")
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Could not process that recording on the server. "
+                "Try again in a moment, or paste a transcript instead."
+            ),
+        ) from exc
     db.refresh(project)
     return _pipeline_result(project, result, mode="auto")
 
