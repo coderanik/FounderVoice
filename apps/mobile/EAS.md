@@ -69,17 +69,24 @@ In Clerk Dashboard → Native applications, use the same scheme:
 ```bash
 cd apps/mobile
 
-# iOS Simulator (dev client — OAuth works here)
-npx eas-cli build --profile development --platform ios
+# Android phone (APK install link)
+npx eas-cli build --profile preview --platform android
 
-# Physical device
-npx eas-cli build --profile development:device --platform ios
-npx eas-cli build --profile development:device --platform android
+# iOS Simulator .app (no paid Apple account required)
+npx eas-cli build --profile preview:simulator --platform ios
 
-# Internal preview / production
-npx eas-cli build --profile preview --platform all
-npx eas-cli build --profile production --platform all
+# Physical iPhone (needs Apple Developer team linked to EAS)
+# First time: run WITHOUT --non-interactive so you can log into Apple
+npx eas-cli build --profile preview --platform ios
 ```
+
+### iPhone notes
+
+- Same JS app as Android — Expo already targets both. iOS needs Apple signing.
+- Internal/device builds require an [Apple Developer Program](https://developer.apple.com/programs/) team ($99/yr) linked in EAS (`eas credentials -p ios`).
+- Register each test iPhone UDID (Expo can help during the first device build), then install from the Expo build page.
+- Free personal Apple IDs can often do short-lived **development** installs via Xcode when the phone is plugged into this Mac; they cannot ship the same Ad Hoc/TestFlight flow as Android APKs.
+- OAuth redirect stays `pitchos://auth/callback` on both platforms (already allowlisted in Supabase).
 
 After a development build installs:
 

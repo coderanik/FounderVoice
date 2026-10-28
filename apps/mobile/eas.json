@@ -30,8 +30,24 @@
       "distribution": "internal",
       "environment": "preview",
       "channel": "preview",
+      "autoIncrement": true,
       "android": {
         "buildType": "apk"
+      },
+      "ios": {
+        "simulator": false,
+        "resourceClass": "m-medium"
+      },
+      "env": {
+        "APP_ENV": "preview"
+      }
+    },
+    "preview:simulator": {
+      "distribution": "internal",
+      "environment": "preview",
+      "channel": "preview",
+      "ios": {
+        "simulator": true
       },
       "env": {
         "APP_ENV": "preview"

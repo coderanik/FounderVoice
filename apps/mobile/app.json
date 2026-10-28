@@ -2,14 +2,12 @@
   "expo": {
     "name": "PitchOS",
     "slug": "pitchos",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "scheme": "pitchos",
     "userInterfaceStyle": "dark",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
+    "runtimeVersion": "1.0.1",
     "updates": {
       "url": "https://u.expo.dev/f1dea53f-665e-4d4b-8642-202cdc8e0c0b",
       "checkAutomatically": "ON_LOAD",
@@ -21,7 +19,17 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.pitchos.app"
+      "bundleIdentifier": "com.pitchos.app",
+      "appleTeamId": "Z2MD8HNCDK",
+      "infoPlist": {
+        "CFBundleDisplayName": "FounderVoice",
+        "NSMicrophoneUsageDescription": "Allow FounderVoice to record pitch voice notes.",
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": ["audio"]
+      },
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
