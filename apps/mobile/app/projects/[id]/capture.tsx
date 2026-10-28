@@ -7,6 +7,7 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -75,6 +76,8 @@ export default function CaptureScreen() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [error, setError] = useState("");
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteText, setPasteText] = useState("");
   const phaseRef = useRef<Phase>("idle");
   const pulse = useRef(new Animated.Value(1)).current;
 
@@ -186,6 +189,25 @@ export default function CaptureScreen() {
     }
   }
 
+  async function submitPastedPitch() {
+    if (!id) return;
+    const transcript = pasteText.trim();
+    if (transcript.length < 40) {
+      setError("Paste a bit more of your pitch (a few sentences) so we can extract claims.");
+      return;
+    }
+    setError("");
+    setPhase("processing");
+    try {
+      await api.pasteTranscript(id, transcript, "auto");
+      setPasteOpen(false);
+      router.replace(`/projects/${id}/review`);
+    } catch (e) {
+      setPhase("idle");
+      setError(e instanceof Error ? e.message : "Could not process that text.");
+    }
+  }
+
   function onMicPress() {
     if (phase === "idle") {
       void startRecording();
@@ -253,6 +275,33 @@ export default function CaptureScreen() {
                 <Text style={styles.tip}>•  Cover problem, solution, target market, traction, etc.</Text>
                 <Text style={styles.tip}>•  You can pause and resume anytime</Text>
               </View>
+
+              <Pressable onPress={() => setPasteOpen((v) => !v)} style={styles.pasteToggle}>
+                <Text style={styles.pasteToggleText}>
+                  {pasteOpen ? "Hide text paste" : "Or paste your pitch as text"}
+                </Text>
+              </Pressable>
+              {pasteOpen ? (
+                <View style={styles.pasteBox}>
+                  <TextInput
+                    value={pasteText}
+                    onChangeText={setPasteText}
+                    placeholder="Paste or type your pitch here…"
+                    placeholderTextColor="#9aa0ab"
+                    multiline
+                    textAlignVertical="top"
+                    style={styles.pasteInput}
+                  />
+                  <Pressable
+                    onPress={() => void submitPastedPitch()}
+                    style={styles.pasteSubmit}
+                    accessibilityRole="button"
+                    accessibilityLabel="Process pasted pitch"
+                  >
+                    <Text style={styles.pasteSubmitText}>Process text</Text>
+                  </Pressable>
+                </View>
+              ) : null}
             </>
           ) : (
             <View style={styles.live}>
@@ -553,6 +602,46 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: "#c04545",
+  },
+  pasteToggle: {
+    marginTop: 18,
+    alignSelf: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  pasteToggleText: {
+    fontFamily: "IBMPlexSans_500Medium",
+    fontSize: 14,
+    color: "#6d4aff",
+  },
+  pasteBox: {
+    marginTop: 8,
+    gap: 10,
+  },
+  pasteInput: {
+    minHeight: 120,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: "#e1e4eb",
+    backgroundColor: "#ffffff",
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontFamily: "IBMPlexSans_400Regular",
+    fontSize: 15,
+    lineHeight: 22,
+    color: "#1a1b23",
+  },
+  pasteSubmit: {
+    height: 48,
+    borderRadius: 14,
+    backgroundColor: "#6d4aff",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pasteSubmitText: {
+    fontFamily: "IBMPlexSans_600SemiBold",
+    fontSize: 15,
+    color: "#ffffff",
   },
   actions: {
     marginTop: "auto",
